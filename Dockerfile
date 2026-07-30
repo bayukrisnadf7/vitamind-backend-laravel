@@ -1,20 +1,49 @@
-FROM richarvey/nginx-php-fpm:3.1.6
+FROM php:8.3-fpm
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    curl \
+    unzip \
+    zip \
+    libpq-dev \
+    libzip-dev \
+    libpng-dev \
+    libjpeg62-turbo-dev \
+    libfreetype6-dev \
+    nginx \
+    supervisor \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install \
+    pdo \
+    pdo_pgsql \
+    pgsql \
+    zip \
+    gd
+
+# Install Composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
-COPY . /var/www/html
+COPY . .
 
-# Copy konfigurasi nginx
-COPY conf/nginx/ngix-site.conf /etc/nginx/sites-enabled/default
+RUN composer install \
+    --no-dev \
+    --optimize-autoloader \
+    --no-interaction
 
-ENV SKIP_COMPOSER=1
-ENV WEBROOT=/var/www/html/public
-ENV PHP_ERRORS_STDERR=1
-ENV RUN_SCRIPTS=1
-ENV REAL_IP_HEADER=1
-ENV APP_ENV=production
-ENV APP_DEBUG=false
-ENV LOG_CHANNEL=stderr
-ENV COMPOSER_ALLOW_SUPERUSER=1
+RUN mkdir -p storage/framework/cache \
+    storage/framework/sessions \
+    storage/framework/views \
+    storage/logs
 
-CMD ["/start.sh"]
+RUN chown -R www-data:www-data storage bootstrap/cache
+
+COPY conf/nginx/ngix-site.conf /etc/nginx/sites-available/default
+
+COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+EXPOSE 80
+
+CMD ["/usr/bin/supervisord","-n"]
