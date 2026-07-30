@@ -1,0 +1,352 @@
+
+{
+  "rules": {
+    "description": "If-then Rule Based logic for screening navigation",
+    "finish_key": "finish"
+  },
+  "questions": [
+    {
+      "id": "Q1",
+      "category": "Latar Belakang Karakteristik Responden",
+      "question": "Apakah dalam 1 tahun terakhir ini anda pernah pergi jauh dari rumah sampai lebih dari 1 bulan ?",
+      "options": [
+        { "value": "Ya", "score": 2 },
+        { "value": "Tidak", "score": 1 }
+      ],
+      "next_default": "Q2"
+    },
+    {
+      "id": "Q2",
+      "category": "Status Pernikahan dan Riwayat Hubungan Seksual",
+      "question": "Apakah anda menikah atau hidup dengan seseorang yang telah berhubungan seksual denganmu ?",
+      "options": [
+        { "value": "Menikah dan tinggal dengan pasangan", "score": 2 },
+        { "value": "Menikah, tapi tinggal dengan pasangan lain", "score": 3 },
+        { "value": "Menikah, tapi tidak tinggal dengan pasangan", "score": 3 },
+        { "value": "Tidak menikah, tapi hidup dengan pasangan", "score": 3 },
+        { "value": "Tidak menikah dan tidak tinggal dengan pasangan", "score": 1 }
+      ],
+      "next_default": "Q3"
+    },
+    {
+      "id": "Q3",
+      "category": "Status Pernikahan dan Riwayat Hubungan Seksual",
+      "question": "Selama hidup, apakah anda pernah memiliki pacar/pasangan lebih dari satu?",
+      "options": [
+        { "value": "Tidak pernah berpacaran", "score": 0 },
+        { "value": "Tidak, hanya 1", "score": 2 },
+        { "value": "Ya, lebih dari satu", "score": 3 }
+      ],
+      "next_default": "Q4"
+    },
+    {
+      "id": "Q4",
+      "category": "Status Pernikahan dan Riwayat Hubungan Seksual",
+      "question": "Apakah anda pernah melakukan hubungan seksual ?",
+      "options": [
+        { "value": "Pernah", "score": 3 },
+        { "value": "Tidak Pernah", "score": 0 }
+      ],
+      "next_default": "Q11",
+      "next_conditional": [
+        { "trigger_value": "Pernah", "next": "Q5" },
+        { "trigger_value": "Tidak Pernah", "next": "Q11" }
+      ]
+    },
+    {
+      "id": "Q5",
+      "category": "Status Pernikahan dan Riwayat Hubungan Seksual",
+      "question": "Saat usia berapa anda pertama kali melakukan hubungan seksual ?",
+      "options": [
+        { "value": "5 - 10 tahun", "score": 3 },
+        { "value": "11 - 15 tahun", "score": 3 },
+        { "value": "16 - 20 tahun", "score": 3 },
+        { "value": ">20 tahun", "score": 2 }
+      ],
+      "next_default": "Q6"
+    },
+    {
+      "id": "Q6",
+      "category": "Status Pernikahan dan Riwayat Hubungan Seksual",
+      "question": "Dalam 1 tahun terakhir ini apakah anda pernah melakukan hubungan seksual?",
+      "options": [
+        { "value": "Pernah", "score": 3 },
+        { "value": "Tidak Pernah", "score": 0 }
+      ],
+      "next_default": "Q7"
+    },
+    {
+      "id": "Q7",
+      "category": "Status Pernikahan dan Riwayat Hubungan Seksual",
+      "question": "Dalam 1 tahun terakhir ini berapa jumlah pasangan yang telah melakukan hubungan seksual dengan anda?",
+      "options": [
+        { "value": "1", "score": 2 },
+        { "value": "2", "score": 3 },
+        { "value": "3", "score": 3 },
+        { "value": ">3", "score": 3 }
+      ],
+      "next_default": "Q8"
+    },
+    {
+      "id": "Q8",
+      "category": "Status Pernikahan dan Riwayat Hubungan Seksual",
+      "question": "Pernahkah anda melakukan hubungan seksual dengan sesama jenis?",
+      "options": [
+        { "value": "Pernah", "score": 3 },
+        { "value": "Tidak Pernah", "score": 0 }
+      ],
+      "next_default": "Q9"
+    },
+    {
+      "id": "Q9",
+      "category": "Status Pernikahan dan Riwayat Hubungan Seksual",
+      "question": "Pernah berhubungan seksual dengan PSK, sebanyak ..............",
+      "options": [
+        { "value": "Tidak pernah", "score": 0 },
+        { "value": "Pernah, sebanyak 1 kali", "score": 3 },
+        { "value": "Pernah, sebanyak 2 kali", "score": 3 },
+        { "value": "Pernah, sebanyak 3 kali", "score": 3 },
+        { "value": "Pernah lebih dari 3 kali", "score": 3 }
+      ],
+      "next_default": "Q10",
+      "next_conditional": [
+        { "trigger_value": "Tidak pernah", "next": "Q11" }
+      ]
+    },
+    {
+      "id": "Q10",
+      "category": "Status Pernikahan dan Riwayat Hubungan Seksual",
+      "question": "Apakah dalam berhubungan seksual dengan PSK anda menggunakan kondom ?",
+      "options": [
+        { "value": "Ya", "score": 2 },
+        { "value": "Tidak", "score": 3 },
+        { "value": "Kadang-kadang", "score": 3 }
+      ],
+      "next_default": "Q11"
+    },
+    {
+      "id": "Q11",
+      "category": "Status Pernikahan dan Riwayat Hubungan Seksual",
+      "question": "Apakah anda pernah menikah ?",
+      "options": [
+        { "value": "Sudah menikah", "score": 2 },
+        { "value": "Belum menikah", "score": 1 }
+      ],
+      "next_default": "Q13",
+      "next_conditional": [
+        { "trigger_value": "Sudah menikah", "next": "Q12" },
+        { "trigger_value": "Belum menikah", "next": "Q13" }
+      ]
+    },
+    {
+      "id": "Q12",
+      "category": "Status Pernikahan dan Riwayat Hubungan Seksual",
+      "question": "Pada usia berapa anda menikah ?",
+      "options": [
+        { "value": "10 - 15 tahun", "score": 2 },
+        { "value": "15 - 20 tahun", "score": 2 },
+        { "value": "> 20 tahun", "score": 2 }
+      ],
+      "next_default": "Q13"
+    },
+    {
+      "id": "Q13",
+      "category": "Pengetahuan tentang Gejala Penyakit Menular Seksual (PMS)",
+      "question": "Pernahkah anda mendengar tentang penyakit menular seksual (PMS) yang dapat ditularkan dari hubungan seksual ?",
+      "options": [
+        { "value": "Ya", "score": 0 },
+        { "value": "Tidak", "score": 2 }
+      ],
+      "next_default": "Q14"
+    },
+    {
+      "id": "Q14",
+      "category": "Pengetahuan tentang Gejala Penyakit Menular Seksual (PMS)",
+      "question": "Pernahkah anda dalam 1 tahun terakhir mengalami gangguan alat genital ?",
+      "options": [
+        { "value": "Pernah", "score": 3 },
+        { "value": "Tidak pernah", "score": 0 },
+        { "value": "Tidak tahu", "score": 2 }
+      ],
+      "next_default": "Q15"
+    },
+    {
+      "id": "Q15",
+      "category": "Pengetahuan tentang Gejala Penyakit Menular Seksual (PMS)",
+      "question": "Pernahkah anda dalam 1 tahun terakhir ada luka pada alat genital ?",
+      "options": [
+        { "value": "Pernah", "score": 3 },
+        { "value": "Tidak Pernah", "score": 0 }
+      ],
+      "next_default": "Q16"
+    },
+    {
+      "id": "Q16",
+      "category": "Perilaku Berisiko Tertular HIV/AIDS",
+      "question": "Dalam 4 bulan terakhir seberapa sering anda mengkonsumsi minuman beralkohol ?",
+      "options": [
+        { "value": "Tidak pernah", "score": 0 },
+        { "value": "Setiap hari", "score": 3 },
+        { "value": "Setiap minggu", "score": 3 },
+        { "value": "Setiap bulan", "score": 3 }
+      ],
+      "next_default": "Q17"
+    },
+    {
+      "id": "Q17",
+      "category": "Perilaku Berisiko Tertular HIV/AIDS",
+      "question": "Apakah anda memiliki ketergantungan pada satu jenis obat ?",
+      "options": [
+        { "value": "Ya", "score": 3 },
+        { "value": "Tidak", "score": 0 }
+      ],
+      "next_default": "Q18"
+    },
+    {
+      "id": "Q18",
+      "category": "Perilaku Berisiko Tertular HIV/AIDS",
+      "question": "Apakah anda pernah menggunakan obat yang menggunakan jarum suntik ?",
+      "options": [
+        { "value": "Ya", "score": 3 },
+        { "value": "Tidak", "score": 0 }
+      ],
+      "next_default": "Q19"
+    },
+    {
+      "id": "Q19",
+      "category": "Perilaku Berisiko Tertular HIV/AIDS",
+      "question": "Apakah anda memiliki tato ?",
+      "options": [
+        { "value": "Ya", "score": 3 },
+        { "value": "Tidak", "score": 0 }
+      ],
+      "next_default": "Q20"
+    },
+    {
+      "id": "Q20",
+      "category": "Perilaku Berisiko Tertular HIV/AIDS",
+      "question": "Apakah anda pernah ditindik (pearcing)?",
+      "options": [
+        { "value": "Pernah", "score": 3 },
+        { "value": "Tidak pernah", "score": 0 }
+      ],
+      "next_default": "Q21"
+    },
+    {
+      "id": "Q21",
+      "category": "Perilaku Berisiko Tertular HIV/AIDS",
+      "question": "Apakah anda pernah mencukur/ dicukur dengan menggunakan silet/pemes/alat cukur lainnya?",
+      "options": [
+        { "value": "Pernah", "score": 3 },
+        { "value": "Tidak pernah", "score": 0 },
+        { "value": "Tidak tahu", "score": 2 }
+      ],
+      "next_default": "Q22"
+    },
+    {
+      "id": "Q22",
+      "category": "Perilaku Berisiko Tertular HIV/AIDS",
+      "question": "Apakah anda pernah melakukan hubungan seks vaginal?",
+      "options": [
+        { "value": "Pernah", "score": 3 },
+        { "value": "Tidak Pernah", "score": 0 }
+      ],
+      "next_default": "Q24",
+      "next_conditional": [
+        { "trigger_value": "Pernah", "next": "Q23" },
+        { "trigger_value": "Tidak Pernah", "next": "Q24" }
+      ]
+    },
+    {
+      "id": "Q23",
+      "category": "Kajian Tingkat Resiko",
+      "question": "Seberapa sering anda melakukan hubungan seks vaginal tanpa kondom?",
+      "options": [
+        { "value": "Sering", "score": 3 },
+        { "value": "Kadang-kadang", "score": 3 },
+        { "value": "Selalu pake kondom", "score": 2 }
+      ],
+      "next_default": "Q24"
+    },
+    {
+      "id": "Q24",
+      "category": "Kajian Tingkat Resiko",
+      "question": "Apakah Anda pernah melakukan hubungan seks anal yang berisiko?",
+      "options": [
+        { "value": "Pernah", "score": 3 },
+        { "value": "Tidak Pernah", "score": 0 }
+      ],
+      "next_default": "Q25"
+    },
+    {
+      "id": "Q25",
+      "category": "Kajian Tingkat Resiko",
+      "question": "Apakah Anda pernah bergantian menggunakan peralatan suntik (jarum suntik, alat narkoba suntik, dll.)?",
+      "options": [
+        { "value": "Pernah", "score": 3 },
+        { "value": "Tidak pernah", "score": 0 },
+        { "value": "Tidak tahu", "score": 2 }
+      ],
+      "next_default": "Q26"
+    },
+    {
+      "id": "Q26",
+      "category": "Kajian Tingkat Resiko",
+      "question": "Apakah Anda pernah menerima transfusi darah?",
+      "options": [
+        { "value": "Ya", "score": 3 },
+        { "value": "Tidak", "score": 0 }
+      ],
+      "next_default": "Q27"
+    },
+    {
+      "id": "Q27",
+      "category": "Kajian Tingkat Resiko",
+      "question": "Apakah Anda lahir dari ibu yang hidup dengan HIV (transmisi ibu ke anak)?",
+      "options": [
+        { "value": "Ya", "score": 3 },
+        { "value": "Tidak", "score": 0 },
+        { "value": "Tidak tahu", "score": 2 }
+      ],
+      "next_default": "Q28"
+    },
+    {
+      "id": "Q28",
+      "category": "Kajian Tingkat Resiko",
+      "question": "Apakah dilingkungan tempat tinggal anda terdapat penderita HIV?",
+      "options": [
+        { "value": "Ada", "score": 3 },
+        { "value": "Tidak ada", "score": 0 }
+      ],
+      "next_default": "finish",
+      "next_conditional": [
+        { "trigger_value": "Ada", "next": "Q29" },
+        { "trigger_value": "Tidak ada", "next": "finish" }
+      ]
+    },
+    {
+      "id": "Q29",
+      "category": "Kajian Tingkat Resiko",
+      "question": "Apakah anda pernah merawat penderita HIV (menangani luka yang berpotensi mengeluarkan darah dan cairan tubuh lainnya) ?",
+      "options": [
+        { "value": "Pernah", "score": 3 },
+        { "value": "Tidak pernah", "score": 0 }
+      ],
+      "next_default": "finish",
+      "next_conditional": [
+        { "trigger_value": "Pernah", "next": "Q30" },
+        { "trigger_value": "Tidak pernah", "next": "finish" }
+      ]
+    },
+    {
+      "id": "Q30",
+      "category": "Kajian Tingkat Resiko",
+      "question": "Jika anda merawat pasien HIV, apakah anda menggunakan peralatan APD (alat pelindung diri seperti sarung tangan /handscoon)?",
+      "options": [
+        { "value": "Pakai", "score": 2 },
+        { "value": "Tidak pakai", "score": 3 }
+      ],
+      "next_default": "finish"
+    }
+  ]
+}

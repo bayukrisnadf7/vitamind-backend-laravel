@@ -2,16 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Mail\ForgotPasswordOtpMail;
-use App\Models\PasswordResetOtp;
-use Carbon\Carbon;
+use App\Services\AuthService;
 use Illuminate\Http\Request;
-use App\Models\User;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
 
 class AuthController extends Controller
 {
+    /**
+     * Create a new controller instance.
+     */
+    public function __construct(
+        protected AuthService $authService
+    ) {}
+
     public function register(Request $request)
     {
         $validated = $request->validate([
@@ -20,11 +22,11 @@ class AuthController extends Controller
             'password' => 'required|string|min:8|confirmed',
         ]);
 
-        $user = User::create($validated);
+        $user = $this->authService->register($validated);
 
         return response()->json(
             [
-                'message' => 'User created successfully',
+                'message' => 'Pengguna berhasil dibuat',
                 'user' => $user,
             ],
             200,
@@ -38,34 +40,58 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        if (!auth()->attempt($validated)) {
+        $result = $this->authService->login($validated);
+
+        if (! $result) {
             return response()->json(
                 [
-                    'message' => 'Invalid credentials',
+                    'message' => 'Email atau kata sandi salah',
                 ],
                 401,
             );
         }
 
-        $user = $request->user();
-        $token = $user->createToken('auth_token')->plainTextToken;
-
         return response()->json(
             [
-                'message' => 'User logged in successfully',
-                'user' => $user,
-                'token' => $token,
+                'message' => 'Berhasil masuk',
+                'user' => $result['user'],
+                'token' => $result['token'],
             ],
             200,
         );
     }
 
+    public function redirectToGoogle()
+    {
+        return response()->json([
+            'url' => $this->authService->getGoogleRedirectUrl(),
+        ]);
+    }
+
+    public function handleGoogleCallback()
+    {
+        try {
+            $result = $this->authService->handleGoogleCallback();
+
+            return response()->json([
+                'message' => 'Berhasil masuk dengan Google',
+                'user' => $result['user'],
+                'token' => $result['token'],
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], $e->getCode() ?: 400);
+        }
+    }
+
     public function logout(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
+        $this->authService->logout($request->user());
+
         return response()->json(
             [
-                'message' => 'User logged out successfully',
+                'message' => 'Berhasil keluar',
             ],
             200,
         );
@@ -77,20 +103,10 @@ class AuthController extends Controller
             'email' => 'required|email|exists:users,email',
         ]);
 
-        PasswordResetOtp::where('email', $request->email)->delete();
-
-        $otp = (string) random_int(100000, 999999);
-
-        PasswordResetOtp::create([
-            'email' => $request->email,
-            'otp' => Hash::make($otp),
-            'expires_at' => Carbon::now()->addMinutes(10),
-        ]);
-
-        Mail::to($request->email)->send(new ForgotPasswordOtpMail($otp));
+        $this->authService->sendForgotPasswordOtp($request->email);
 
         return response()->json([
-            'message' => 'The OTP was successfully sent to your email.',
+            'message' => 'Kode OTP telah berhasil dikirim ke email Anda.',
         ]);
     }
 
@@ -101,41 +117,49 @@ class AuthController extends Controller
             'otp' => 'required|digits:6',
         ]);
 
-        $otpData = PasswordResetOtp::where('email', $request->email)->first();
+        try {
+            $this->authService->verifyOtp($request->email, $request->otp);
 
-        if (!$otpData) {
+            return response()->json([
+                'message' => 'Kode OTP valid.',
+            ]);
+        } catch (\Exception $e) {
             return response()->json(
                 [
-                    'message' => 'OTP not found.',
+                    'message' => $e->getMessage(),
                 ],
-                404,
+                $e->getCode() ?: 400,
             );
         }
-
-        if ($otpData->expires_at->isPast()) {
-            return response()->json(
-                [
-                    'message' => 'OTP has expired.',
-                ],
-                400,
-            );
-        }
-
-        if (!Hash::check($request->otp, $otpData->otp)) {
-            return response()->json(
-                [
-                    'message' => 'OTP is invalid.',
-                ],
-                400,
-            );
-        }
-
-        return response()->json([
-            'message' => 'The OTP is valid.',
-        ]);
     }
 
     public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email|exists:users,email',
+            'password' => 'required|min:8|confirmed',
+        ]);
+
+        try {
+            $this->authService->resetPasswordByEmail(
+                $request->email,
+                $request->password
+            );
+
+            return response()->json([
+                'message' => 'Kata sandi Anda telah berhasil diperbarui.',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(
+                [
+                    'message' => $e->getMessage(),
+                ],
+                $e->getCode() ?: 400,
+            );
+        }
+    }
+
+    public function resetPasswordOtp(Request $request)
     {
         $request->validate([
             'email' => 'required|email',
@@ -143,43 +167,23 @@ class AuthController extends Controller
             'password' => 'required|min:8|confirmed',
         ]);
 
-        $otpData = PasswordResetOtp::where('email', $request->email)->first();
+        try {
+            $this->authService->resetPassword(
+                $request->email,
+                $request->otp,
+                $request->password
+            );
 
-        if (!$otpData) {
+            return response()->json([
+                'message' => 'Kata sandi Anda telah berhasil diperbarui.',
+            ]);
+        } catch (\Exception $e) {
             return response()->json(
                 [
-                    'message' => 'OTP not found.',
+                    'message' => $e->getMessage(),
                 ],
-                404,
+                $e->getCode() ?: 400,
             );
         }
-
-        if ($otpData->expires_at->isPast()) {
-            return response()->json(
-                [
-                    'message' => 'OTP has expired.',
-                ],
-                400,
-            );
-        }
-
-        if (!Hash::check($request->otp, $otpData->otp)) {
-            return response()->json(
-                [
-                    'message' => 'OTP is invalid.',
-                ],
-                400,
-            );
-        }
-
-        User::where('email', $request->email)->update([
-            'password' => Hash::make($request->password),
-        ]);
-
-        $otpData->delete();
-
-        return response()->json([
-            'message' => 'Your password has been reset successfully.',
-        ]);
     }
 }
