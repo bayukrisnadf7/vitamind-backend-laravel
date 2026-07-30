@@ -24,3 +24,9 @@ Route::post('/auth/forgot-password', [AuthController::class, 'forgotPassword']);
 Route::post('/auth/verify-otp', [AuthController::class, 'verifyOtp']);
 Route::post('/auth/reset-password', [AuthController::class, 'resetPassword']);
 Route::post('/auth/reset-password-otp', [AuthController::class, 'resetPasswordOtp']);
+
+Route::get('/ping', function () {
+    return response()->json([
+        'message' => 'pong'
+    ]);
+});
