@@ -1,49 +1,45 @@
 FROM php:8.3-fpm
 
-# Install system dependencies
+# Install dependencies
 RUN apt-get update && apt-get install -y \
     git \
-    curl \
     unzip \
-    zip \
     libpq-dev \
-    libzip-dev \
-    libpng-dev \
-    libjpeg62-turbo-dev \
-    libfreetype6-dev \
-    nginx \
-    supervisor \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install \
-    pdo \
-    pdo_pgsql \
-    pgsql \
-    zip \
-    gd
+    && docker-php-ext-install pdo_mysql pdo_pgsql \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
+# Copy project
 COPY . .
 
+# Install Laravel dependencies
 RUN composer install \
     --no-dev \
     --optimize-autoloader \
     --no-interaction
 
-RUN mkdir -p storage/framework/cache \
+# Create Laravel directories
+RUN mkdir -p \
+    storage/framework/cache \
     storage/framework/sessions \
     storage/framework/views \
-    storage/logs
+    storage/logs \
+    bootstrap/cache
 
-RUN chown -R www-data:www-data storage bootstrap/cache
+# Set permissions
+RUN chown -R www-data:www-data \
+    storage \
+    bootstrap/cache
 
-COPY conf/nginx/ngix-site.conf /etc/nginx/sites-available/default
+RUN chmod -R 775 \
+    storage \
+    bootstrap/cache
 
-COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+# Expose PHP-FPM
+EXPOSE 9000
 
-EXPOSE 80
-
-CMD ["/usr/bin/supervisord","-n"]
+CMD ["php-fpm"]
