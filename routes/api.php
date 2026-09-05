@@ -27,6 +27,6 @@ Route::post('/auth/reset-password-otp', [AuthController::class, 'resetPasswordOt
 
 Route::get('/ping', function () {
     return response()->json([
-        'message' => 'pong'
+        'message' => 'pong',
     ]);
 });
