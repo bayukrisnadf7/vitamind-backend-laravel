@@ -3,7 +3,6 @@
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
@@ -41,8 +40,8 @@ class ForgotPasswordOtpMail extends Mailable
             with: [
                 'otp' => $this->otp,
             ],
-    );
-}
+        );
+    }
 
     /**
      * Get the attachments for the message.
