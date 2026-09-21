@@ -1,4 +1,4 @@
-name: Laravel CI/CD
+name: Laravel Deploy
 
 on:
   push:
@@ -11,7 +11,7 @@ jobs:
 
     steps:
       # =========================
-      # CI
+      # SETUP
       # =========================
 
       - name: Checkout repository
@@ -24,6 +24,16 @@ jobs:
           extensions: mbstring, bcmath, pdo, pdo_mysql
           coverage: none
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      # =========================
+      # DEPENDENCIES
+      # =========================
+
       - name: Install Composer dependencies
         run: |
           composer install \
@@ -31,16 +41,34 @@ jobs:
             --prefer-dist \
             --optimize-autoloader
 
+      - name: Install NPM dependencies
+        run: npm ci
+
+      # =========================
+      # ENVIRONMENT
+      # =========================
+
       - name: Prepare Laravel environment
         run: |
           cp .env.example .env
           php artisan key:generate
 
-      - name: Run tests
+      # =========================
+      # BUILD
+      # =========================
+
+      - name: Build frontend assets
+        run: npm run build
+
+      # =========================
+      # TEST
+      # =========================
+
+      - name: Run Laravel tests
         run: php artisan test
 
       # =========================
-      # CD
+      # DEPLOY
       # =========================
 
       - name: Deploy to VPS
@@ -52,18 +80,24 @@ jobs:
           script: |
             set -e
 
-            cd /var/www/projects/vitamind-backend-laravel
+            cd /var/www/projects/vitamind-backend
 
             echo "Pull latest code..."
             git fetch origin
             git reset --hard origin/main
 
-            echo "Install production dependencies..."
+            echo "Install Composer dependencies..."
             composer install \
               --no-dev \
               --no-interaction \
               --prefer-dist \
               --optimize-autoloader
+
+            echo "Install NPM dependencies..."
+            npm ci
+
+            echo "Build frontend assets..."
+            npm run build
 
             echo "Run database migrations..."
             php artisan migrate --force
@@ -71,7 +105,7 @@ jobs:
             echo "Clear Laravel cache..."
             php artisan optimize:clear
 
-            echo "Build Laravel cache..."
+            echo "Cache Laravel..."
             php artisan config:cache
             php artisan route:cache
             php artisan view:cache
@@ -82,4 +116,4 @@ jobs:
             echo "Reload PHP-FPM..."
             sudo systemctl reload php8.3-fpm
 
-            echo "Deployment completed!"
+            echo "Deployment completed successfully!"
