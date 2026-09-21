@@ -80,7 +80,7 @@ jobs:
           script: |
             set -e
 
-            cd /var/www/projects/vitamind-backend
+            cd /var/www/projects/vitamind-backend-laravel
 
             echo "Pull latest code..."
             git fetch origin
