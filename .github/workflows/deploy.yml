@@ -10,6 +10,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # =========================
+      # CI
+      # =========================
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -21,10 +25,23 @@ jobs:
           coverage: none
 
       - name: Install Composer dependencies
-        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+        run: |
+          composer install \
+            --no-interaction \
+            --prefer-dist \
+            --optimize-autoloader
+
+      - name: Prepare Laravel environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate
 
       - name: Run tests
         run: php artisan test
+
+      # =========================
+      # CD
+      # =========================
 
       - name: Deploy to VPS
         uses: appleboy/ssh-action@v1
@@ -33,10 +50,13 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
+            set -e
+
             cd /var/www/projects/vitamind-backend-laravel
 
             echo "Pull latest code..."
-            git pull origin dev
+            git fetch origin
+            git reset --hard origin/main
 
             echo "Install production dependencies..."
             composer install \
@@ -45,10 +65,10 @@ jobs:
               --prefer-dist \
               --optimize-autoloader
 
-            echo "Run migrations..."
+            echo "Run database migrations..."
             php artisan migrate --force
 
-            echo "Clear old cache..."
+            echo "Clear Laravel cache..."
             php artisan optimize:clear
 
             echo "Build Laravel cache..."
@@ -56,7 +76,10 @@ jobs:
             php artisan route:cache
             php artisan view:cache
 
-            echo "Restart PHP-FPM..."
+            echo "Restart queue workers..."
+            php artisan queue:restart || true
+
+            echo "Reload PHP-FPM..."
             sudo systemctl reload php8.3-fpm
 
             echo "Deployment completed!"
