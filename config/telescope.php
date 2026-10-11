@@ -20,6 +20,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Record All Entries
+    |--------------------------------------------------------------------------
+    |
+    | When enabled, Telescope will record all incoming requests and entries
+    | in production environments, not only exceptions or failed requests.
+    |
+    */
+
+    'record_all' => env('TELESCOPE_RECORD_ALL', true),
+
+    /*
+    |--------------------------------------------------------------------------
     | Telescope Domain
     |--------------------------------------------------------------------------
     |

@@ -5,6 +5,9 @@ namespace Tests\Feature;
 use App\Models\User;
 use App\Providers\TelescopeServiceProvider as AppTelescopeServiceProvider;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Telescope\EntryType;
+use Laravel\Telescope\IncomingEntry;
+use Laravel\Telescope\Telescope;
 use Laravel\Telescope\TelescopeServiceProvider;
 use Tests\TestCase;
 
@@ -72,5 +75,41 @@ class TelescopeTest extends TestCase
         $response = $this->actingAs($admin)->get('/telescope');
 
         $response->assertStatus(200);
+    }
+
+    public function test_all_requests_are_recorded_in_production_when_record_all_is_enabled(): void
+    {
+        $this->app->detectEnvironment(fn () => 'production');
+        config(['telescope.record_all' => true]);
+
+        (new AppTelescopeServiceProvider($this->app))->register();
+
+        $entry = IncomingEntry::make([
+            'uri' => '/api/test',
+            'method' => 'GET',
+            'response_status' => 200,
+        ])->type(EntryType::REQUEST);
+
+        $filterCallback = end(Telescope::$filterUsing);
+
+        $this->assertTrue($filterCallback($entry));
+    }
+
+    public function test_normal_requests_are_filtered_out_when_record_all_is_disabled_in_production(): void
+    {
+        $this->app->detectEnvironment(fn () => 'production');
+        config(['telescope.record_all' => false]);
+
+        (new AppTelescopeServiceProvider($this->app))->register();
+
+        $entry = IncomingEntry::make([
+            'uri' => '/api/test',
+            'method' => 'GET',
+            'response_status' => 200,
+        ])->type(EntryType::REQUEST);
+
+        $filterCallback = end(Telescope::$filterUsing);
+
+        $this->assertFalse($filterCallback($entry));
     }
 }
